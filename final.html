@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Proyecto Final</title> 
+
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+		integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+		crossorigin=""/>
+		
+		<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+		integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+		crossorigin="">
+		</script>
+		
+		<!-- Leaflet Plugins -->
+		<link rel="stylesheet" href="Control.MiniMap.css" />
+		<script src="Control.MiniMap.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="L.Control.MousePosition.css" />
+		<script src="L.Control.MousePosition.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="Control.MiniMap.css" />
+		<script src="L.Control.Opacity.js"></script>
+		<link href="L.Control.Opacity.css" rel="stylesheet" />
+
+		
+		<!-- Data Visualization Framework -->
+		<link rel="stylesheet" href="dvf.css" />
+		<script src="leaflet-dvf.js"></script> 		
+	
+	   <style>
+		#map {
+			width: 600px;
+			height: 400px;
+			box-shadow: 10px 10px 10px #888;
+		}
+		
+		.info {
+		padding: 9px 11px;
+		font: 13px/15px Arial, Helvetica, sans-serif;
+		background: white;
+		background: rgba(255,255,255,0.8);
+		box-shadow: 0 0 15px rgba(0,0,0,0.2);
+		border-radius: 15px;
+		position: topleft;
+		}
+		.info h2 {
+		margin: 5px 0 7px;
+		color: #888;
+		}
+		.legend {
+		line-height: 18px;
+		color: #555;
+		}
+				
+		.legend I {
+		width: 18px;
+		height: 18px;
+		float: left;
+		margin-right: 8px;
+		opacity: 0.7;
+		}			
+		
+		
+		#boton {
+			position: absolute;
+			left:	325;
+			text-align: center;
+			height: 25px;
+			space: 3px;
+			width: 110px;
+			top:	100px;
+			z-index: 5000
+			
+		}
+
+
+	   </style> 
+</head>
+    <body>
+	<div id="map" style="width: 1285px; height: 605px;"></div>
+	<div id="titulo" style="width:100px; height:35px; position:absolute;"></div>
+	<div id="map"></div>
+	<div id="boton">
+		<button id="zoomtotal">Zoom total</button>
+		<button id="atlantida">Atlántida</button>
+		<button id="colon">Colón</button>
+		<button id="comayagua">Comayagua</button>
+		<button id="copan">Copán</button>
+		<button id="cortes">Cortés</button>
+		<button id="choluteca">Choluteca</button>
+		<button id="elparaiso">El Paraíso</button>
+		<button id="fmorazan">Francisco Morazán</button>
+		<button id="graciasadios">Gracias a Dios</button>
+		<button id="intibuca">Intibucá</button>
+		<button id="islas">Islas de la Bahía</button>
+		<button id="lapaz">La Paz</button>
+		<button id="lempira">Lempira</button>
+		<button id="ocotepeque">Ocotepeque</button>
+		<button id="olancho">Olancho</button>
+		<button id="sbarbara">Santa Bárbara</button>
+		<button id="valle">Valle</button>
+		<button id="yoro">Yoro</button>		
+
+	</div>
+
+	<script type="text/javascript">
+		var colon 			= 	[15.769568, -85.725933];
+		    comayagua 		=	[14.633955, -87.632790];
+		    copan 			= 	[14.906814, -88.899672];
+			atlantida 		=	[15.664450, -87.135029];
+			cortes	 		=	[15.390626, -87.993294];
+			choluteca 		=	[13.380019, -87.110076];
+			elparaiso 		=	[13.971848, -86.479685];
+			fmorazan		=	[14.323696, -87.178384];
+			intibuca		=	[14.397892, -88.181064];
+			islas			=	[16.338398, -86.508377];
+			graciasadios	=	[15.301260, -84.540689];
+			lapaz			=	[14.104870, -87.881369];
+			lempira			=	[14.459755, -88.593176];	
+			ocotepeque		=	[14.490826, -89.042405];
+			olancho			=	[14.833946, -85.926839];
+			sbarbara		=	[15.097623, -88.351126];			
+			valle			=	[13.558319, -87.591666];
+			yoro			=	[15.246274, -87.083079];
+			zoomtotal		=	[14.82029, -86.624856];
+			
+		var map = L.map('map',{
+			center:[14.82029, -86.624856],
+			zoom: 7.35,
+			zoomControl: false,
+			})
+			
+				
+		var base1 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors,<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>,Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			id: 'mapbox.streets',
+			accessToken: 'pk.eyJ1IjoibWdyZDE5NjgiLCJhIjoiY2pzaTEweDhwMTIwbzQ5cWd1NmdhOWpkMSJ9.J2kCFGWNLG8UzRAPBT6FHQ'
+		}).addTo(map);
+		
+		var base2 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors,<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>,Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			id: 'mapbox.light',
+			accessToken: 'pk.eyJ1IjoibWdyZDE5NjgiLCJhIjoiY2pzaTEweDhwMTIwbzQ5cWd1NmdhOWpkMSJ9.J2kCFGWNLG8UzRAPBT6FHQ'
+		});
+		
+		var base3 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors,<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>,Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			id: 'mapbox.satellite',
+			accessToken: 'pk.eyJ1IjoibWdyZDE5NjgiLCJhIjoiY2pzaTEweDhwMTIwbzQ5cWd1NmdhOWpkMSJ9.J2kCFGWNLG8UzRAPBT6FHQ'
+		});		
+		
+		var base4 = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors,<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>,Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			id: 'mapbox.comic',
+			accessToken: 'pk.eyJ1IjoibWdyZDE5NjgiLCJhIjoiY2pzaTEweDhwMTIwbzQ5cWd1NmdhOWpkMSJ9.J2kCFGWNLG8UzRAPBT6FHQ'
+		});	
+		
+		var limintehn = L.tileLayer.wms("http://geoportal.icf.gob.hn:8081/geoserver/icf/wms", {
+			layers: "m1102va001970_hn",
+			format: 'image/png',
+			version: '1.3.0',
+			transparent: true,
+			opacity: 1,
+			attribution: "ICF, Honduras"
+			}).addTo(map);
+		
+	  
+		
+		document.getElementById('fmorazan').onclick		= function () { map.flyTo(fmorazan, 9.15); };
+		document.getElementById('atlantida').onclick	= function () { map.flyTo(atlantida,10); };
+		document.getElementById('colon').onclick	 	= function () { map.flyTo(colon, 9.35); };
+		document.getElementById('comayagua').onclick 	= function () { map.flyTo(comayagua, 9.5); };
+		document.getElementById('copan').onclick	 	= function () { map.flyTo(copan, 10); };
+		document.getElementById('cortes').onclick 		= function () { map.flyTo(cortes, 9.25); };
+		document.getElementById('choluteca').onclick 	= function () { map.flyTo(choluteca, 10); };
+		document.getElementById('elparaiso').onclick 	= function () { map.flyTo(elparaiso,9.75); };
+		document.getElementById('intibuca').onclick 	= function () { map.flyTo(intibuca,10); };
+		document.getElementById('islas').onclick 		= function () { map.flyTo(islas,10); };
+		document.getElementById('graciasadios').onclick	= function () { map.flyTo(graciasadios,9.2); };
+		document.getElementById('lapaz').onclick		= function () { map.flyTo(lapaz,10.4); };
+		document.getElementById('lempira').onclick		= function () { map.flyTo(lempira,9.7); };
+		document.getElementById('ocotepeque').onclick	= function () { map.flyTo(ocotepeque,10.75); };
+		document.getElementById('olancho').onclick		= function () { map.flyTo(olancho,9); };
+		document.getElementById('sbarbara').onclick		= function () { map.flyTo(sbarbara, 9.75); };
+		document.getElementById('valle').onclick		= function () { map.flyTo(valle,10.25); };
+		document.getElementById('yoro').onclick			= function () { map.flyTo(yoro,9.65); };
+		document.getElementById('zoomtotal').onclick	= function () { map.flyTo(zoomtotal,7.75); };
+		
+		
+		
+		
+		var incendios_activos = L.tileLayer.wms("https://firms.modaps.eosdis.nasa.gov/wms/?REQUEST=GetMap&layers=fires_modis_24&WIDTH=1024&HEIGHT=512&BBOX=-180,-90,180,90&MAP_KEY=8ebb493758011861bbd1ae5ca3852560", {
+			layers: "fires_aqua_7",
+			format: 'image/png',
+			transparent: true,
+			version: '1.1.0',
+			dragging: false,
+			opacity: 0,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA Official: Ed Masuoka"
+			});
+			
+		var sonda = L.tileLayer.wms("https://disc1.gesdisc.eosdis.nasa.gov/daac-bin/wms_airs?", {
+			layers: "AIRX3STD_SURFAIRTEMP_A",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.45,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA"
+			});		
+			
+		var temp_sup = L.tileLayer.wms("https://disc1.gesdisc.eosdis.nasa.gov/daac-bin/wms_airs?", {
+			layers: "AIRX3STD_TOTCLDLIQH2O_D",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.45,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA"
+			});		
+		
+		//**Presión superficial diaria ascendente**//
+		var pres_superficial = L.tileLayer.wms("https://disc1.gesdisc.eosdis.nasa.gov/daac-bin/wms_airs?", {
+			layers: "AIRX3STD_SURFPRES_A",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.45,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA"
+			});	
+			
+			
+		//**Flujo diario de radiación de onda larga saliente ascendente**//
+		var flujo_radianciaon = L.tileLayer.wms("https://disc1.gesdisc.eosdis.nasa.gov/daac-bin/wms_airs?", {
+			layers: "AIRX3STD_OLR_A",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.55,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA"
+			});	
+		
+		//**Altura diaria de la tropopausa**//
+		var altu_torp = L.tileLayer.wms("https://disc1.gesdisc.eosdis.nasa.gov/daac-bin/wms_airs?", {
+			layers: "AIRX3STD_TROPHEIGHT_A",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.55,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA"
+			});	
+			
+		//**Carga de ozono de columna integrada total mensual Ascendente**//
+		var carga_ozon = L.tileLayer.wms("https://disc1.gesdisc.eosdis.nasa.gov/daac-bin/wms_airs?", {
+			layers: "AIRX3STM_TOTO3_A",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.55,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA"
+			});	
+		
+		//**Observaciones atmosféricas de CO2 desde el espacio**//
+		var co2_esp = L.tileLayer.wms("https://disc1.gesdisc.eosdis.nasa.gov/daac-bin/wms_airs?", {
+			layers: "ACOS_Grid_xCO2_All",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.55,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA"
+			});	
+		
+		//**Evapotrasntpiracion real **//
+		var evapo_total = L.tileLayer.wms("http://giovanni.gsfc.nasa.gov/giovanni/daac-bin/wms_ag4?", {
+			layers: "ime-Averaged.FLDAS_VIC025_A_EA_D_001_Evap_tavg",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.55,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA, "
+			});	
+			
+		//**Precipitacion total por hora 
+		var pres_hora = L.tileLayer.wms("http://giovanni.gsfc.nasa.gov/giovanni/daac-bin/wms_ag4?", {
+			layers: "Time-Averaged.NLDAS_FORB0125_H_002_acpcpsfc",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.55,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA, "
+			});		
+			
+		//**Humedad espeficica: Time-Averaged.NCALDAS_NOAH0125_D_2_0_Qair_f**//
+		var hume_espe = L.tileLayer.wms("http://giovanni.gsfc.nasa.gov/giovanni/daac-bin/wms_ag4?", {
+			layers: "Time-Averaged.NCALDAS_NOAH0125_D_2_0_Qair_f",
+			format: 'image/png',
+			transparent: true,
+			version: '1.3.0',
+			dragging: false,
+			opacity: 0.55,
+			maxZoom: 20,
+			minZoom: 5,
+			attribution: "NASA, "
+			});	
+			
+		var baseLayers = {
+			"Calles": base1,
+			"Luces":base2,	
+			"Imagen de satelite": base3,
+			"Calles y satelite": base4,
+			};
+			
+		var overlays = {
+			"Altura diaria de la tropopausa": altu_torp,
+			"Carga columnar de Ozono": carga_ozon,
+			"Evapotranspiración total": evapo_total,
+			"Flujo de radiacion de onda larga": flujo_radianciaon,
+			"Humedad espeficica": hume_espe,
+			"Incendios activos": incendios_activos,
+			"Observaciones de CO2 desde el espacio": co2_esp,
+			"Precipitacion total por hora": pres_hora,
+			"Presión superficial": pres_superficial,
+			"Sonda Infrarroja Admosférica": sonda,
+			"Temperatura diaria del aire en la superficie": temp_sup,
+		};
+			
+		
+		
+		
+		
+		var varios= L.layerGroup([altu_torp,carga_ozon,co2_esp]);
+		
+		L.control.layers(baseLayers, overlays,{collapsed:false}).addTo(map);
+		
+		var mouse = new L.control.mousePosition('baseLayers',{position:'absolute'}).addTo(map);
+		
+		var escala = L.control.scale().addTo(map);
+		
+		var miniMap = new L.Control.MiniMap(base2, {position:'bottomright'}).addTo(map);
+		new L.Control.Zoom({ position: 'bottomright'}).addTo(map);
+		
+		var title = L.control({position: 'topleft'});
+				title.onAdd = function (map) {
+				
+				var div = L.DomUtil.create('div', 'info');
+				div.innerHTML +='<h2>VISOR GEOGRÁFICO DE ESTADÍSTICAS ATMOSFÉRICAS MONITOREOADAS POR LA NASA Y NOAA</h2>';
+				return div;
+				};
+				title.addTo(map);
+		
+
+/*L.control.opacity = function (overlays, options) {
+        return new L.Control.Opacity(overlays, options);*/
+
+		
+		
+	</script>
+    </body>
+</html>
